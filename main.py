@@ -1,4 +1,6 @@
 from PIL import Image
+import argparse
+import os
 
 PIECES = set("RNBKQPrnbkqp")
 FEN_PIECES = { i : ("b" if i.islower() else "w") + i.lower() for i in PIECES}
@@ -7,12 +9,30 @@ BOARD_SIZE = (BOARD_DIMENSIONS, BOARD_DIMENSIONS)
 SQUARE_SIZE = 40
 PIECE_SIZE = (SQUARE_SIZE, SQUARE_SIZE)
 RESOURCES = "resources/"
+OUTPUT = "output"
+VALID_FORMATS = set(["jpg", "png", "gif", "bmp"])
+desc = "A CLI tool to convert a valid FEN to an image file."
+fenhelp = '''
+A valid FEN (see https://en.wikipedia.org/wiki/Forsyth-Edwards_Notation)
+'''
+formathelp = "Specify the format of the output file (the extension i.e jpg, png)"
+filehelp = "Specify the name of the output file (without an extension)"
+folderhelp = "Specify the output folder (no leading or trailing slashes)"
+
+parser = argparse.ArgumentParser(description=desc)
+parser.add_argument(dest="FEN", nargs=6, default=None, help=fenhelp)
+parser.add_argument("-f", dest="fmt", metavar="format", default="png", help=formathelp)
+parser.add_argument("-o", dest="filename", metavar="output file", default="result", help=filehelp)
+parser.add_argument("-dir", dest="folder", metavar="output folder", default=OUTPUT, help=folderhelp)
+
 
 class Board():
-    def __init__(self, board, no=0):
+    def __init__(self, board, fmt, dest, fname):
         self.result = Image.open(RESOURCES+"board.png").resize(BOARD_SIZE)
         self.board = board
-        self.no = no
+        self.fmt = fmt
+        self.fname = fname
+        self.dest = dest
     
     def open_image(self, piece):
         try:
@@ -35,7 +55,7 @@ class Board():
                     self.insert(piece, (i,j))
 
     def to_image(self):
-        self.result.save(RESOURCES+"{}.png".format(self.no))
+        self.result.save("{}/{}.{}".format(self.dest, self.fname, self.fmt))
 
 def isInt(value):
     try:
@@ -85,28 +105,13 @@ def isValidBoard(board):
     return True
 
 def isValidFEN(fen):
-    fen = fen.split()
-    if len(fen) != 6:
-        return False
     board, move, castle, enpassant, halfmove, fullmove = fen
     return (isValidBoard(board) and isValidMove(move) and isValidCastle(castle) 
     and isValidEnPassant(enpassant) and isInt(halfmove) and isInt(fullmove))
-    # if isValidBoard(board):
-    #     print("Good board.")
-    # if isValidMove(move):
-    #     print("Good move.")
-    # if isValidCastle(castle):
-    #     print("Good castle.") 
-    # if isValidSquare(enpassant):
-    #     print("Good en-passant.")
-    # if isInt(halfmove):
-    #     print("Good half-move.") 
-    # if isInt(fullmove):
-    #     print("Good fullmove.")
 
 def FENtoBoard(fen): #Fix orientation of board
     board = [["" for j in range(8)] for i in range(8)]
-    board_str = fen.split()[0].split("/")
+    board_str = fen[0].split("/")
     for i, rank in enumerate(board_str):
         pos = 0
         for square in rank:
@@ -117,18 +122,24 @@ def FENtoBoard(fen): #Fix orientation of board
                 pos += 1
     return board
 
-def getFEN():
-    fen = input("Enter fen: ")
+def main():
+    args = parser.parse_args()
+    fen = args.FEN
     if isValidFEN(fen):
-        print("Valid FEN.")
-        result = FENtoBoard(fen)
-        bb = Board(result)
-        bb.create()
-        bb.to_image()
+        if args.fmt not in VALID_FORMATS:
+            print("{} is not an accepted image format. Saving as .png".format(args.fmt))
+            args.fmt = "png"
+        if not os.path.isdir(args.folder):
+            #Handle if directory is not valid
+            os.mkdir(args.folder)
+            print("Creating new directory: {}".format(args.folder))
+        board = FENtoBoard(fen)
+        boardToImage = Board(board, args.fmt, args.folder, args.filename)
+        boardToImage.create()
+        boardToImage.to_image()
+        print("Completed! File created in {}/{}.{}".format(args.folder, args.filename, args.fmt))
     else:
-        print("Invalid FEN.")
+        print("Invalid FEN. No Image file was generated.")
 
-# print(FEN_PIECES)
-getFEN()
-
-
+if __name__ == "__main__":
+    main()
