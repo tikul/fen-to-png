@@ -1,1 +1,21 @@
 # fen-to-png
+> fen-to-png is a simple CLI for converting FEN strings to image files.
+## Install
+Clone this repo
+```shell
+git clone https://github.com/tikul/fen-to-png.git
+cd fen-to-png
+```
+Install dependencies
+```shell
+pip install -r requirements.txt
+```
+## Usage
+```
+python main.py [-h] [-f format] [-o output file] [-dir output folder] FEN FEN FEN FEN FEN FEN
+```
+To diplay a help message
+```
+python main.py -h
+```
+Visit [wikipedia page](https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation) to read more about FENs.
