@@ -106,4 +106,4 @@ ENV/
 !.vscode/launch.json
 !.vscode/extensions.json
 
-.output/
+output/
