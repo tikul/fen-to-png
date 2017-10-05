@@ -18,4 +18,6 @@ To diplay a help message
 ```
 python main.py -h
 ```
-Visit [wikipedia page](https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation) to read more about FENs.
+Visit the [wikipedia page](https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation) to read more about FENs.
+
+## Demo
