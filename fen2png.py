@@ -84,6 +84,8 @@ class Board:
     def isValidCastle(self, castle):
         if len(castle) > 4:
             return False
+        if castle == "-":
+            return True
         possible = {i: 0 for i in ["K", "Q", "k", "q"]}
         for letter in castle:
             if letter not in possible.keys():
